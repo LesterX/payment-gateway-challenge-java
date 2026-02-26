@@ -1,84 +1,32 @@
 package com.checkout.payment.gateway.model;
 
 import com.checkout.payment.gateway.enums.PaymentStatus;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.UUID;
 
+@Data
+@NoArgsConstructor
 public class PostPaymentResponse {
   private UUID id;
   private PaymentStatus status;
-  private int cardNumberLastFour;
+  private String cardNumberLastFour;
   private int expiryMonth;
   private int expiryYear;
   private String currency;
-  private int amount;
+  private long amount;
 
-
-  public UUID getId() {
-    return id;
-  }
-
-  public void setId(UUID id) {
-    this.id = id;
-  }
-
-  public PaymentStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(PaymentStatus status) {
+  public PostPaymentResponse(PostPaymentRequest request, PaymentStatus status) {
+    this.id = UUID.randomUUID();
     this.status = status;
-  }
+    this.expiryMonth = request.getExpiryMonth();
+    this.expiryYear = request.getExpiryYear();
+    this.currency = request.getCurrency();
+    this.amount = request.getAmount();
 
-  public int getCardNumberLastFour() {
-    return cardNumberLastFour;
-  }
-
-  public void setCardNumberLastFour(int cardNumberLastFour) {
-    this.cardNumberLastFour = cardNumberLastFour;
-  }
-
-  public int getExpiryMonth() {
-    return expiryMonth;
-  }
-
-  public void setExpiryMonth(int expiryMonth) {
-    this.expiryMonth = expiryMonth;
-  }
-
-  public int getExpiryYear() {
-    return expiryYear;
-  }
-
-  public void setExpiryYear(int expiryYear) {
-    this.expiryYear = expiryYear;
-  }
-
-  public String getCurrency() {
-    return currency;
-  }
-
-  public void setCurrency(String currency) {
-    this.currency = currency;
-  }
-
-  public int getAmount() {
-    return amount;
-  }
-
-  public void setAmount(int amount) {
-    this.amount = amount;
-  }
-
-  @Override
-  public String toString() {
-    return "GetPaymentResponse{" +
-        "id=" + id +
-        ", status=" + status +
-        ", cardNumberLastFour=" + cardNumberLastFour +
-        ", expiryMonth=" + expiryMonth +
-        ", expiryYear=" + expiryYear +
-        ", currency='" + currency + '\'' +
-        ", amount=" + amount +
-        '}';
+    String cardNumber = request.getCardNumber();
+    this.cardNumberLastFour = cardNumber.substring(cardNumber.length() - 4);
   }
 }

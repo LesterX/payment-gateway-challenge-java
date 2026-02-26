@@ -32,3 +32,5 @@ For documentation openAPI is included, and it can be found under the following u
 - Payment amount has to be positive.
 - Only USD, CNY, EUR are supported.
 - Authentication and encryption are out of scope of this exercise.
+- No payment data needed for rejected payment response.
+- No detail information of "which field is invalid" for rejected response.

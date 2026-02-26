@@ -12,6 +12,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,11 +21,11 @@ public class PostPaymentRequestTest {
     private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
-    public void testRequest_validRequest() {
+    public void whenAllFieldsValidThenNoViolations() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(12)
-                .expiryYear(2027)
+                .expiryYear(2099)
                 .currency("USD")
                 .amount(1000L)
                 .cvv("123")
@@ -33,12 +34,11 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertTrue(violations.isEmpty());
+        assertEquals("12/2099", request.getExpiryString());
     }
 
-    // TODO: Make assertions check more details
-
     @Test
-    public void testRequest_missingFields() {
+    public void whenFieldsMissingThenViolationsReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder().build();
     
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
@@ -50,7 +50,7 @@ public class PostPaymentRequestTest {
     }
 
     @Test
-    public void testRequest_cardNumberTooShort() {
+    public void whenCardNumberTooShortThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("123")
                 .expiryMonth(12)
@@ -63,10 +63,15 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("cardNumber");
     }
 
     @Test
-    public void testRequest_cardNumberContainsInvalidCharacter() {
+    public void whenCardNumberContainsNonNumericThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("1234567890abcd")
                 .expiryMonth(12)
@@ -79,10 +84,14 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("cardNumber");
     }
 
     @Test
-    public void testRequest_invalidExpiryMonth() {
+    public void whenExpiryMonthOutOfRangeThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(13)
@@ -95,10 +104,14 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("expiryMonth");
     }
 
     @Test
-    public void testRequest_expiryYearTooLarge() {
+    public void whenExpiryYearOutOfRangeThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(1)
@@ -111,10 +124,15 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("expiryYear");
     }
 
     @Test
-    public void testRequest_expiryInThePast() {
+    public void whenExpiryDateInThePastThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(1)
@@ -127,10 +145,15 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("expiryDateFuture");
     }
 
     @Test
-    public void testRequest_invalidCurrencyFormat() {
+    public void whenCurrencyFormatInvalidThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(1)
@@ -143,10 +166,15 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("currency");
     }
 
     @Test
-    public void testRequest_UnsupportedCurrency() {
+    public void whenCurrencyNotSupportedThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(1)
@@ -159,10 +187,15 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("supportedCurrency");
     }
 
     @Test
-    public void testRequest_InvalidAmount() {
+    public void whenAmountNotPositiveThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(1)
@@ -175,10 +208,15 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("amount");
     }
 
     @Test
-    public void testRequest_InvalidCVV_InvalidLength() {
+    public void whenCvvLengthInvalidThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(1)
@@ -191,10 +229,15 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("cvv");
     }
 
     @Test
-    public void testRequest_InvalidCVV_InvalidCharacter() {
+    public void whenCvvContainsNonNumericThenViolationReturned() {
         PostPaymentRequest request = PostPaymentRequest.builder()
                 .cardNumber("12345678901234")
                 .expiryMonth(1)
@@ -207,5 +250,10 @@ public class PostPaymentRequestTest {
         Set<ConstraintViolation<PostPaymentRequest>> violations = validator.validate(request);
     
         assertFalse(violations.isEmpty());
+
+        Set<String> paths = violations.stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
+        assertThat(paths).contains("cvv");
     }
 }
