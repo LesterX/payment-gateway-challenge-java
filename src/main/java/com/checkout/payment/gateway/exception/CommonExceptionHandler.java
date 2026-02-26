@@ -24,7 +24,7 @@ public class CommonExceptionHandler {
 
   @ExceptionHandler(BankServiceException.class)
   public ResponseEntity<ErrorResponse> handleBankServiceException(BankServiceException ex) {
-    LOG.error("Exception from acquring bank", ex);
+    LOG.error("Exception from acquiring bank", ex);
     return new ResponseEntity<>(new ErrorResponse("Unable to process the request due to bank service issue"),
       HttpStatus.INTERNAL_SERVER_ERROR);
   }

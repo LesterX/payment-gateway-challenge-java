@@ -32,7 +32,7 @@ public class PaymentGatewayService {
   }
 
   public PostPaymentResponse getPaymentById(UUID id) {
-    LOG.debug("Requesting access to to payment with ID {}", id);
+    LOG.info("Requesting access to payment with ID {}", id);
     return paymentsRepository.get(id).orElseThrow(() -> new EventProcessingException("Invalid ID"));
   }
 
@@ -51,6 +51,8 @@ public class PaymentGatewayService {
     PaymentStatus status = bankPaymentResponse.isAuthorized() ? PaymentStatus.AUTHORIZED : PaymentStatus.DECLINED;
     PostPaymentResponse payment = new PostPaymentResponse(request, status);
     paymentsRepository.add(payment);
+
+    LOG.info("Processed payment with id {}", payment.getId());
 
     return payment;
   }
