@@ -45,7 +45,7 @@ public class PostPaymentRequest implements Serializable {
 
   @NotNull
   @Min(1)
-  @Max(9999) // TODO: Need confirmation
+  @Max(9999)
   @Schema(example = "2030")
   @JsonProperty("expiry_year")
   private Integer expiryYear;
@@ -57,7 +57,7 @@ public class PostPaymentRequest implements Serializable {
   
   @NotNull
   @Positive
-  private Long amount; // TODO: Need notes on maximum value
+  private Long amount;
   
   @NotNull
   @Pattern(regexp = "^[0-9]{3,4}$", message = "CVV must be a 3 or 4 digit number")

@@ -35,7 +35,7 @@ For unit tests, run `.\gradlew.bat test`
 #### Sample Request
 ```
 {
-    "card_number": "1234567890123456",
+    "card_number": "1234567890123451",
     "expiry_month": 12,
     "expiry_year": 2030,
     "currency": "USD",
@@ -135,4 +135,6 @@ Unit tests on REST client with mock variables hardly provides any value.
 - Client authentication
 - Idempotency check
 - Sortable payment id
+- Persist payment data before submission to bank
 - Retry and timeout for bank API call
+- Actual database integration
